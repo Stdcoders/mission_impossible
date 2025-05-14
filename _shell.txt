@@ -1,0 +1,207 @@
+Assignment 1
+
+
+nano student_menu.sh
+✅ Step 4: Save and Exit the File
+
+Ctrl + O to save
+Enter  
+Ctrl + X to exit
+
+chmod +x student_menu.sh
+./student_menu.sh
+
+
+
+A. Student Database Handling Program
+#!/bin/bash
+
+DB="student_db.txt"
+
+while true; do
+    echo "----- STUDENT DATABASE MENU -----"
+    echo "a) Create Database"
+    echo "b) View Database"
+    echo "c) Insert a Record"
+    echo "d) Delete a Record"
+    echo "e) Modify a Record"
+    echo "f) Result of a Particular Student"
+    echo "g) Exit"
+    read -p "Enter your choice: " choice
+
+    case $choice in
+        a)
+            > $DB
+            echo "Database created/reset successfully."
+            ;;
+        b)
+            echo "----- Database Content -----"
+            cat $DB
+            ;;
+        c)
+            read -p "Enter Roll No: " roll
+            read -p "Enter Name: " name
+            read -p "Enter Marks: " marks
+            echo "$roll $name $marks" >> $DB
+            echo "Record inserted."
+            ;;
+        d)
+            read -p "Enter Roll No to delete: " roll
+            grep -v "^$roll " $DB > temp && mv temp $DB
+            echo "Record deleted if it existed."
+            ;;
+        e)
+            read -p "Enter Roll No to modify: " roll
+            grep -v "^$roll " $DB > temp && mv temp $DB
+            read -p "Enter New Name: " name
+            read -p "Enter New Marks: " marks
+            echo "$roll $name $marks" >> $DB
+            echo "Record modified."
+            ;;
+        f)
+            read -p "Enter Roll No to search: " roll
+            grep "^$roll " $DB || echo "Record not found."
+            ;;
+        g)
+            echo "Exiting..."
+            break
+            ;;
+        *)
+            echo "Invalid option."
+            ;;
+    esac
+done
+
+
+B. Menu Driven Program
+#!/bin/bash
+
+while true; do
+    echo "----- MENU -----"
+    echo "a) Factorial of a number"
+    echo "b) Greatest of three numbers"
+    echo "c) Check Prime"
+    echo "d) Check if number is Palindrome"
+    echo "e) Check if string is Palindrome"
+    echo "f) Exit"
+    read -p "Enter choice: " choice
+
+    case $choice in
+        a)
+            read -p "Enter number: " n
+            fact=1
+            for (( i=1; i<=n; i++ ))
+            do
+                fact=$((fact * i))
+            done
+            echo "Factorial: $fact"
+            ;;
+        b)
+            read -p "Enter three numbers: " a b c
+            if (( a > b && a > c )); then
+                echo "$a is greatest"
+            elif (( b > c )); then
+                echo "$b is greatest"
+            else
+                echo "$c is greatest"
+            fi
+            ;;
+        c)
+            read -p "Enter number: " num
+            prime=1
+            for ((i=2; i<num; i++)); do
+                if (( num % i == 0 )); then
+                    prime=0
+                    break
+                fi
+            done
+            if (( prime == 1 && num != 1 )); then
+                echo "$num is Prime"
+            else
+                echo "$num is not Prime"
+            fi
+            ;;
+        d)
+            read -p "Enter number: " num
+            rev=$(echo $num | rev)
+            if [[ "$num" == "$rev" ]]; then
+                echo "$num is a Palindrome"
+            else
+                echo "$num is not a Palindrome"
+            fi
+            ;;
+        e)
+            read -p "Enter string: " str
+            rev=$(echo $str | rev)
+            if [[ "$str" == "$rev" ]]; then
+                echo "String is a Palindrome"
+            else
+                echo "String is not a Palindrome"
+            fi
+            ;;
+        f)
+            echo "Exiting..."
+            break
+            ;;
+        *)
+            echo "Invalid choice"
+            ;;
+    esac
+done
+
+
+C. Command-Line Argument Programs
+a. Biggest of Three Numbers
+#!/bin/bash
+# Usage: ./biggest.sh 10 20 30
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 num1 num2 num3"
+    exit 1
+fi
+a=$1
+b=$2
+c=$3
+
+if (( a >= b && a >= c )); then
+    echo "$a is the biggest"
+elif (( b >= c )); then
+    echo "$b is the biggest"
+else
+    echo "$c is the biggest"
+fi
+
+b. Reverse a Number
+#!/bin/bash
+# Usage: ./reverse.sh 123
+n=$1
+rev=0
+while (( n > 0 )); do
+    rem=$(( n % 10 ))
+    rev=$(( rev * 10 + rem ))
+    n=$(( n / 10 ))
+done
+echo "Reversed Number: $rev"
+
+c. Print Word N Times
+#!/bin/bash
+# Usage: ./repeat.sh 5 Hello
+count=$1
+word=$2
+for (( i=1; i<=count; i++ )); do
+    echo "$word"
+done
+
+
+
+d. Sum of Digits of 4-digit Number
+#!/bin/bash
+# Usage: ./sum_digits.sh 1234
+num=$1
+sum=0
+while (( num > 0 )); do
+    rem=$(( num % 10 ))
+    sum=$(( sum + rem ))
+    num=$(( num / 10 ))
+done
+echo "Sum of digits: $sum"
+

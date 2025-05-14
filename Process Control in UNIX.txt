@@ -1,0 +1,105 @@
+3. Process Control in UNIX
+✅ 1. Parent and Child Process Sorting Array
+Parent sorts array in descending order
+
+Child sorts array in ascending order
+
+Implemented using fork()
+
+
+// Filename: sort_process.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+void sort_desc(int arr[], int n) {
+    for (int i = 0; i < n-1; i++)
+        for (int j = i+1; j < n; j++)
+            if (arr[i] < arr[j]) {
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+}
+
+void sort_asc(int arr[], int n) {
+    for (int i = 0; i < n-1; i++)
+        for (int j = i+1; j < n; j++)
+            if (arr[i] > arr[j]) {
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+}
+
+int main() {
+    int arr[] = {5, 3, 8, 1, 4};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int pid = fork();
+
+    if (pid == 0) {
+        printf("\n--- CHILD PROCESS ---\n");
+        sort_asc(arr, n);
+        printf("Ascending order: ");
+        for (int i = 0; i < n; i++) printf("%d ", arr[i]);
+        printf("\n");
+    } else if (pid > 0) {
+        wait(NULL);  // Wait for child to finish
+        printf("\n--- PARENT PROCESS ---\n");
+        sort_desc(arr, n);
+        printf("Descending order: ");
+        for (int i = 0; i < n; i++) printf("%d ", arr[i]);
+        printf("\n");
+    } else {
+        printf("Fork failed.\n");
+    }
+
+    return 0;
+}
+
+RUN:
+gcc sort_process.c -o sort_process
+./sort_process
+
+
+
+2. Count Vowels Using vfork()
+// Filename: vowel_vfork.c
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+
+int main() {
+    char sentence[100];
+    int count = 0;
+
+    printf("Enter a sentence: ");
+    fgets(sentence, sizeof(sentence), stdin);
+
+    int pid = vfork();
+
+    if (pid == 0) {
+        // Child Process
+        for (int i = 0; sentence[i] != '\0'; i++) {
+            char ch = tolower(sentence[i]);
+            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+                count++;
+            }
+        }
+        printf("Child Process: Vowel count = %d\n", count);
+        _exit(0);  // Use _exit() with vfork()
+    } else if (pid > 0) {
+        // Parent Process
+        wait(NULL);
+        printf("Parent Process: Done.\n");
+    } else {
+        printf("vfork failed.\n");
+    }
+
+    return 0;
+}
+
+
+gcc vowel_vfork.c -o vowel_vfork
+./vowel_vfork
+

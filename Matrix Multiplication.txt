@@ -1,0 +1,93 @@
+Matrix Multiplication
+
+ C Code: Matrix Multiplication with Multithreading
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+#define ROW1 2
+#define COL1 3
+#define ROW2 3
+#define COL2 2
+
+// Global Matrices
+int mat1[ROW1][COL1] = {
+    {1, 2, 3},
+    {4, 5, 6}
+};
+
+int mat2[ROW2][COL2] = {
+    {7, 8},
+    {9, 10},
+    {11, 12}
+};
+
+int result[ROW1][COL2];
+
+typedef struct {
+    int row;
+    int col;
+} position;
+
+// Thread function to compute one cell
+void* multiply(void* arg) {
+    position* pos = (position*) arg;
+    int r = pos->row;
+    int c = pos->col;
+
+    int* value = (int*) malloc(sizeof(int));
+    *value = 0;
+
+    for (int i = 0; i < COL1; i++) {
+        *value += mat1[r][i] * mat2[i][c];
+    }
+
+    pthread_exit((void*) value);
+}
+
+int main() {
+    pthread_t threads[ROW1][COL2];
+    position* args[ROW1][COL2];
+    int* res;
+
+    // Create one thread per result cell
+    for (int i = 0; i < ROW1; i++) {
+        for (int j = 0; j < COL2; j++) {
+            args[i][j] = (position*) malloc(sizeof(position));
+            args[i][j]->row = i;
+            args[i][j]->col = j;
+
+            pthread_create(&threads[i][j], NULL, multiply, (void*) args[i][j]);
+        }
+    }
+
+    // Collect results using pthread_join
+    for (int i = 0; i < ROW1; i++) {
+        for (int j = 0; j < COL2; j++) {
+            pthread_join(threads[i][j], (void**) &res);
+            result[i][j] = *res;
+            free(res);
+            free(args[i][j]);
+        }
+    }
+
+    // Print final result matrix
+    printf("\nResultant Matrix:\n");
+    for (int i = 0; i < ROW1; i++) {
+        for (int j = 0; j < COL2; j++) {
+            printf("%d\t", result[i][j]);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
+
+
+
+
+gcc matrix_thread.c -o matrix_thread -lpthread
+./matrix_thread
+

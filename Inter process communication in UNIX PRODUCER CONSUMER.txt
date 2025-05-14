@@ -1,0 +1,81 @@
+ Inter process communication in UNIX
+✅ Inter-Process Communication in UNIX
+🎯 AIM:
+Implement the Producer-Consumer Problem using UNIX pipes.
+
+📌 Concept:
+Pipes are used for communication between related processes (like parent and child).
+
+In this implementation:
+
+Producer is the parent process that sends data via the pipe.
+
+Consumer is the child process that reads data from the pipe.
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+int main() {
+    int fd[2]; // file descriptors for the pipe
+    pid_t pid;
+    char write_msg[100];
+    char read_msg[100];
+
+    // Create a pipe
+    if (pipe(fd) == -1) {
+        perror("Pipe failed");
+        return 1;
+    }
+
+    pid = fork(); // Create a child process
+
+    if (pid < 0) {
+        perror("Fork failed");
+        return 1;
+    }
+    else if (pid > 0) {
+        // Parent process: Producer
+        close(fd[0]); // Close reading end
+
+        for (int i = 1; i <= 5; i++) {
+            sprintf(write_msg, "Item %d", i);
+            write(fd[1], write_msg, strlen(write_msg) + 1); // +1 to include null terminator
+            printf("Producer (Parent) produced: %s\n", write_msg);
+            sleep(1);
+        }
+
+        close(fd[1]); // Close writing end
+    }
+    else {
+        // Child process: Consumer
+        close(fd[1]); // Close writing end
+
+        for (int i = 1; i <= 5; i++) {
+            read(fd[0], read_msg, sizeof(read_msg));
+            printf("Consumer (Child) consumed: %s\n", read_msg);
+            sleep(1);
+        }
+
+        close(fd[0]); // Close reading end
+    }
+
+    return 0;
+}
+
+
+
+
+
+gcc ipc_pipe.c -o ipc_pipe
+./ipc_pipe
+
+EXPLAINATION:
+pipe(fd) creates a unidirectional communication channel.
+
+fork() creates a child process.
+
+The parent writes to fd[1], and the child reads from fd[0]
